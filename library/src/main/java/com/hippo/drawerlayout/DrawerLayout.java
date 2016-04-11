@@ -16,8 +16,6 @@
 
 package com.hippo.drawerlayout;
 
-import android.animation.Animator;
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -46,12 +44,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 
+import com.hippo.animator.ValueAnimatorCompat;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @SuppressLint("RtlHardcoded")
-public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpdateListener,
-        Animator.AnimatorListener {
+public class DrawerLayout extends ViewGroup implements ValueAnimatorCompat.AnimatorUpdateListener,
+        ValueAnimatorCompat.AnimatorListener {
 
     @IntDef({STATE_CLOSED, STATE_SLIDING, STATE_OPEN})
     @Retention(RetentionPolicy.SOURCE)
@@ -66,7 +66,7 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
             android.R.attr.layout_gravity
     };
 
-    private static final long ANIMATE_TIME = 300;
+    private static final int ANIMATE_TIME = 300;
 
     private static final int STATE_CLOSED = 0;
     private static final int STATE_SLIDING = 1;
@@ -136,7 +136,7 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
     private int mLeftLockMode;
     private int mRightLockMode;
 
-    private ValueAnimator mAnimator;
+    private ValueAnimatorCompat mAnimator;
     private View mTargetView;
     private int mStartLeft;
     private int mEndLeft;
@@ -210,9 +210,10 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
         mRightPercent = 0.0f;
         mMinDrawerMargin = (int) (MIN_DRAWER_MARGIN * context.getResources().getDisplayMetrics().density + 0.5f);
         mDragHelper = ViewDragHelper.create(this, 0.5f, new DragHelperCallback());
-        mAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
-        mAnimator.addUpdateListener(this);
-        mAnimator.addListener(this);
+        mAnimator = new ValueAnimatorCompat();
+        mAnimator.setFloatValues(0.0f, 1.0f);
+        mAnimator.setUpdateListener(this);
+        mAnimator.setListener(this);
         mAnimator.setInterpolator(DRAWER_INTERPOLATOR);
         mCancelAnimation = false;
         mDrawerElevation = (int) (DRAWER_ELEVATION * context.getResources().getDisplayMetrics().density + 0.5f);
@@ -299,10 +300,11 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
     }
 
     public void openDrawer(int gravity) {
-        if (gravity == Gravity.LEFT)
+        if (gravity == Gravity.LEFT) {
             openDrawer(mLeftDrawer);
-        else if (gravity == Gravity.RIGHT)
+        } else if (gravity == Gravity.RIGHT) {
             openDrawer(mRightDrawer);
+        }
     }
 
     /**
@@ -339,28 +341,31 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
     }
 
     public void closeDrawer(int gravity) {
-        if (gravity == Gravity.LEFT)
+        if (gravity == Gravity.LEFT) {
             closeDrawer(mLeftDrawer);
-        else if (gravity == Gravity.RIGHT)
+        } else if (gravity == Gravity.RIGHT) {
             closeDrawer(mRightDrawer);
+        }
     }
 
     public boolean isDrawerOpen(View drawer) {
-        if (drawer == mLeftDrawer)
+        if (drawer == mLeftDrawer) {
             return mLeftOpened;
-        else if (drawer == mRightDrawer)
+        } else if (drawer == mRightDrawer) {
             return mRightOpened;
-        else
+        } else {
             throw new IllegalArgumentException("The view is not drawer");
+        }
     }
 
     public boolean isDrawerOpen(int gravity) {
-        if (gravity == Gravity.LEFT)
+        if (gravity == Gravity.LEFT) {
             return isDrawerOpen(mLeftDrawer);
-        else if (gravity == Gravity.RIGHT)
+        } else if (gravity == Gravity.RIGHT) {
             return isDrawerOpen(mRightDrawer);
-        else
+        } else {
             throw new IllegalArgumentException("gravity must be Gravity.LEFT or Gravity.RIGHT");
+        }
     }
 
     public void setDrawerShadow(@DrawableRes int resId, int gravity) {
@@ -382,12 +387,13 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
     }
 
     public void setDrawerLockMode(int lockMode, int gravity) {
-        if (gravity == Gravity.LEFT)
+        if (gravity == Gravity.LEFT) {
             setDrawerLockMode(lockMode, mLeftDrawer);
-        else if (gravity == Gravity.RIGHT)
+        } else if (gravity == Gravity.RIGHT) {
             setDrawerLockMode(lockMode, mRightDrawer);
-        else
+        } else {
             throw new IllegalArgumentException("gravity must be Gravity.LEFT or Gravity.RIGHT");
+        }
     }
 
     public void setDrawerLockMode(int lockMode, View drawer) {
@@ -405,11 +411,13 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
             otherSideLockMode = mLeftLockMode;
             mRightLockMode = lockMode;
         }
-        if (oldLockMode == lockMode)
+        if (oldLockMode == lockMode) {
             return;
+        }
 
-        if (otherSideLockMode == LOCK_MODE_LOCKED_OPEN && lockMode == LOCK_MODE_LOCKED_OPEN)
+        if (otherSideLockMode == LOCK_MODE_LOCKED_OPEN && lockMode == LOCK_MODE_LOCKED_OPEN) {
             throw new IllegalArgumentException("Only on side could be LOCK_MODE_LOCKED_OPEN");
+        }
 
         switch (lockMode) {
             // TODO What if open or close fail ?
@@ -423,21 +431,23 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
     }
 
     public int getDrawerLockMode(int gravity) {
-        if (gravity == Gravity.LEFT)
+        if (gravity == Gravity.LEFT) {
             return getDrawerLockMode(mLeftDrawer);
-        else if (gravity == Gravity.RIGHT)
+        } else if (gravity == Gravity.RIGHT) {
             return getDrawerLockMode(mRightDrawer);
-        else
+        } else {
             throw new IllegalArgumentException("gravity must be Gravity.LEFT or Gravity.RIGHT");
+        }
     }
 
     public int getDrawerLockMode(View drawer) {
-        if (drawer == mLeftDrawer)
+        if (drawer == mLeftDrawer) {
             return mLeftLockMode;
-        else if (drawer == mRightDrawer)
+        } else if (drawer == mRightDrawer) {
             return mRightLockMode;
-        else
+        } else {
             throw new IllegalArgumentException("The view is not drawer");
+        }
     }
 
     @Override
@@ -470,14 +480,17 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
             }
         }
 
-        if (mContentView == null)
+        if (mContentView == null) {
             throw new IllegalStateException("There is no content view");
+        }
         // Material is solid.
         // Input events cannot pass through material.
-        if (mLeftDrawer != null)
+        if (mLeftDrawer != null) {
             mLeftDrawer.setClickable(true);
-        if (mRightDrawer != null)
+        }
+        if (mRightDrawer != null) {
             mRightDrawer.setClickable(true);
+        }
 
         mShadow = new ShadowView(getContext());
         addView(mShadow, 1);
@@ -638,11 +651,8 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
     }
 
     private boolean isDrawersTouchable() {
-        if ((mLeftDrawer != null && mLeftLockMode == LOCK_MODE_UNLOCKED)
-                || (mRightDrawer != null && mRightLockMode == LOCK_MODE_UNLOCKED))
-            return true;
-        else
-            return false;
+        return (mLeftDrawer != null && mLeftLockMode == LOCK_MODE_UNLOCKED)
+                || (mRightDrawer != null && mRightLockMode == LOCK_MODE_UNLOCKED);
     }
 
     private int getActualDxLeft(int dx) {
@@ -650,8 +660,9 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
         int oldLeft = mLeftDrawer.getLeft();
         int newLeft = clamp(oldLeft + dx, -leftWidth, 0);
         int newVisible = newLeft == -leftWidth ? View.INVISIBLE : View.VISIBLE;
-        if (mLeftDrawer.getVisibility() != newVisible)
+        if (mLeftDrawer.getVisibility() != newVisible) {
             mLeftDrawer.setVisibility(newVisible);
+        }
 
         updateDrawerSlide(mLeftDrawer, (newLeft + leftWidth) / (float) leftWidth);
 
@@ -664,8 +675,9 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
         int oldLeft = mRightDrawer.getLeft();
         int newLeft = clamp(oldLeft + dx, width - rightWidth, width);
         int newVisible = newLeft == width ? View.INVISIBLE : View.VISIBLE;
-        if (mRightDrawer.getVisibility() != newVisible)
+        if (mRightDrawer.getVisibility() != newVisible) {
             mRightDrawer.setVisibility(newVisible);
+        }
 
         updateDrawerSlide(mRightDrawer, (width - newLeft) / (float) rightWidth);
 
@@ -681,30 +693,32 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
     }
 
     @Override
-    public void onAnimationUpdate(@NonNull ValueAnimator animation) {
-        float value = (Float) animation.getAnimatedValue();
+    public void onAnimationUpdate(@NonNull ValueAnimatorCompat animation) {
+        float value = animation.getAnimatedFloatValue();
         int oldLeft = mTargetView.getLeft();
         int newLeft = lerp(mStartLeft, mEndLeft, value);
-        if (mTargetView == mLeftDrawer)
+        if (mTargetView == mLeftDrawer) {
             slideLeftDrawer(newLeft - oldLeft);
-        else
+        } else {
             slideRightDrawer(newLeft - oldLeft);
+        }
     }
 
     @Override
-    public void onAnimationStart(Animator animation) {
+    public void onAnimationStart(ValueAnimatorCompat animation) {
         updateDrawerState(mTargetView, STATE_SLIDING);
     }
 
     @Override
-    public void onAnimationEnd(@NonNull Animator animation) {
+    public void onAnimationEnd(@NonNull ValueAnimatorCompat animation) {
         if (!mCancelAnimation) {
             updateDrawerSlide(mTargetView, mToOpen ? 1.0f : 0.0f);
             updateDrawerState(mTargetView, mToOpen ? STATE_OPEN : STATE_CLOSED);
-            if (mToOpen)
+            if (mToOpen) {
                 dispatchOnDrawerOpened(mTargetView);
-            else
+            } else {
                 dispatchOnDrawerClosed(mTargetView);
+            }
 
             if (mOpenTask != null && !mToOpen &&
                     (mOpenTask == mLeftDrawer || mOpenTask == mRightDrawer)) {
@@ -725,12 +739,7 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
     }
 
     @Override
-    public void onAnimationCancel(Animator animation) {
-        // Empty
-    }
-
-    @Override
-    public void onAnimationRepeat(Animator animation) {
+    public void onAnimationCancel(ValueAnimatorCompat animation) {
         // Empty
     }
 
@@ -754,10 +763,11 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
             // No need to animate
             updateDrawerSlide(mTargetView, mToOpen ? 1.0f : 0.0f);
             updateDrawerState(mTargetView, mToOpen ? STATE_OPEN : STATE_CLOSED);
-            if (mToOpen)
+            if (mToOpen) {
                 dispatchOnDrawerOpened(mTargetView);
-            else
+            } else {
                 dispatchOnDrawerClosed(mTargetView);
+            }
             return;
         }
 
@@ -870,11 +880,13 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
             mIntercepted = true;
         }
 
-        if (!mIntercepted)
+        if (!mIntercepted) {
             return false;
+        }
 
-        if (!isDrawersTouchable())
+        if (!isDrawersTouchable()) {
             return false;
+        }
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:

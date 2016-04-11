@@ -8,7 +8,7 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
-        minSdkVersion 11
+        minSdkVersion 4
         targetSdkVersion 23
         versionCode 1
         versionName "0.1.0"
@@ -25,6 +25,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:support-v4:23.3.0'
+    compile 'com.github.seven332:animator:0.1.0'
 }
 
 // build a jar with source files
