@@ -17,20 +17,31 @@
 
 <com.hippo.drawerlayout.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
-    <FrameLayout
+    <com.hippo.drawerlayout.example.DrawerViewContent
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
 
-    <FrameLayout
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_width="match_parent"
+            android:background="?attr/colorPrimary"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+    </com.hippo.drawerlayout.example.DrawerViewContent>
+
+    <com.hippo.drawerlayout.example.DrawerViewLeft
         android:layout_width="280dp"
         android:layout_height="match_parent"
         android:layout_gravity="left"
         android:background="@android:color/white"/>
 
-    <FrameLayout
+    <com.hippo.drawerlayout.example.DrawerViewRight
         android:layout_width="280dp"
         android:layout_height="match_parent"
         android:layout_gravity="right"

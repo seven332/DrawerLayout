@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.hippo.drawerlayout.example"
-        minSdkVersion 4
+        minSdkVersion 7
         targetSdkVersion 23
         versionCode 1
         versionName "0.1.0"
@@ -22,5 +22,6 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':library')
+    compile 'com.android.support:appcompat-v7:23.3.0'
     testCompile 'junit:junit:4.12'
 }

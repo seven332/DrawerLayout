@@ -18,6 +18,9 @@ package com.hippo.drawerlayout.example;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+
+import com.hippo.drawerlayout.DrawerLayout;
 
 public class MainActivity extends Activity {
 
@@ -25,5 +28,8 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerLayout.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
     }
 }
