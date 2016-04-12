@@ -4,6 +4,8 @@ DrawerLayout 是基于 `android.support.v4.widget.DrawerLayout`，而且全屏�
 
 The DrawerLayout is forked from `android.support.v4.widget.DrawerLayout`, but full-screen.
 
+![demo](art/demo.gif)
+
 
 # Usage
 
