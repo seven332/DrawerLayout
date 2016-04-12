@@ -17,13 +17,28 @@
 package com.hippo.drawerlayout;
 
 /**
- * Child of DrawerLayout, adjust padding
+ * {@link com.hippo.drawerlayout.DrawerLayout} is different from
+ * {@link android.support.v4.widget.DrawerLayout} in fitsSystemWindows status.
+ * {@code DrawerLayout} direct children should implement {@link DrawerLayoutChild} to handle
+ * windows paddings.
  */
 public interface DrawerLayoutChild {
 
+    /**
+     * Get windows paddings
+     *
+     * @param top windows padding top, it should be status bar height
+     * @param bottom windows padding bottom, it should be nav bar height
+     */
     void setFitPadding(int top, int bottom);
 
+    /**
+     * Margin top
+     */
     int getLayoutPaddingTop();
 
+    /**
+     * Margin bottom
+     */
     int getLayoutPaddingBottom();
 }
