@@ -1000,10 +1000,21 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
 
     public void setStatusBarColor(int statusBarColor) {
         mStatusBarPaint.setColor(statusBarColor);
+
+        int width = getWidth();
+        if (mFitPaddingTop != 0 && width != 0) {
+            invalidate(0, 0, width, mFitPaddingTop);
+        }
     }
 
     public void setNavigationBarColor(int navigationBarColor) {
         mNavigationBarPaint.setColor(navigationBarColor);
+
+        int width = getWidth();
+        int height = getHeight();
+        if (mFitPaddingBottom != 0 && width != 0) {
+            invalidate(0, height - mFitPaddingBottom, width, height);
+        }
     }
 
     @Override
