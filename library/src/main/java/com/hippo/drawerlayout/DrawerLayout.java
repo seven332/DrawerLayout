@@ -16,6 +16,8 @@
 
 package com.hippo.drawerlayout;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -43,15 +45,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
-
-import com.hippo.animator.ValueAnimatorCompat;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @SuppressLint("RtlHardcoded")
-public class DrawerLayout extends ViewGroup implements ValueAnimatorCompat.AnimatorUpdateListener,
-        ValueAnimatorCompat.AnimatorListener {
+public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpdateListener, Animator.AnimatorListener {
 
     @IntDef({STATE_CLOSED, STATE_SLIDING, STATE_OPEN})
     @Retention(RetentionPolicy.SOURCE)
@@ -136,7 +134,7 @@ public class DrawerLayout extends ViewGroup implements ValueAnimatorCompat.Anima
     private int mLeftLockMode;
     private int mRightLockMode;
 
-    private ValueAnimatorCompat mAnimator;
+    private ValueAnimator mAnimator;
     private View mTargetView;
     private int mStartLeft;
     private int mEndLeft;
@@ -210,10 +208,10 @@ public class DrawerLayout extends ViewGroup implements ValueAnimatorCompat.Anima
         mRightPercent = 0.0f;
         mMinDrawerMargin = (int) (MIN_DRAWER_MARGIN * context.getResources().getDisplayMetrics().density + 0.5f);
         mDragHelper = ViewDragHelper.create(this, 0.5f, new DragHelperCallback());
-        mAnimator = new ValueAnimatorCompat();
+        mAnimator = new ValueAnimator();
         mAnimator.setFloatValues(0.0f, 1.0f);
-        mAnimator.setUpdateListener(this);
-        mAnimator.setListener(this);
+        mAnimator.addUpdateListener(this);
+        mAnimator.addListener(this);
         mAnimator.setInterpolator(DRAWER_INTERPOLATOR);
         mCancelAnimation = false;
         mDrawerElevation = (int) (DRAWER_ELEVATION * context.getResources().getDisplayMetrics().density + 0.5f);
@@ -693,8 +691,8 @@ public class DrawerLayout extends ViewGroup implements ValueAnimatorCompat.Anima
     }
 
     @Override
-    public void onAnimationUpdate(@NonNull ValueAnimatorCompat animation) {
-        float value = animation.getAnimatedFloatValue();
+    public void onAnimationUpdate(@NonNull ValueAnimator animation) {
+        float value = (Float) animation.getAnimatedValue();
         int oldLeft = mTargetView.getLeft();
         int newLeft = lerp(mStartLeft, mEndLeft, value);
         if (mTargetView == mLeftDrawer) {
@@ -705,12 +703,12 @@ public class DrawerLayout extends ViewGroup implements ValueAnimatorCompat.Anima
     }
 
     @Override
-    public void onAnimationStart(ValueAnimatorCompat animation) {
+    public void onAnimationStart(Animator animation) {
         updateDrawerState(mTargetView, STATE_SLIDING);
     }
 
     @Override
-    public void onAnimationEnd(@NonNull ValueAnimatorCompat animation) {
+    public void onAnimationEnd(@NonNull Animator animation) {
         if (!mCancelAnimation) {
             updateDrawerSlide(mTargetView, mToOpen ? 1.0f : 0.0f);
             updateDrawerState(mTargetView, mToOpen ? STATE_OPEN : STATE_CLOSED);
@@ -739,9 +737,10 @@ public class DrawerLayout extends ViewGroup implements ValueAnimatorCompat.Anima
     }
 
     @Override
-    public void onAnimationCancel(ValueAnimatorCompat animation) {
-        // Empty
-    }
+    public void onAnimationCancel(Animator animation) {}
+
+    @Override
+    public void onAnimationRepeat(Animator animation) {}
 
     private void startAnimation(final boolean isLeft, final boolean isOpen,
             boolean staticDuration) {
