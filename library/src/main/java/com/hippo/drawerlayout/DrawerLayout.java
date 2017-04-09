@@ -92,11 +92,6 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
 
     private static final Interpolator DRAWER_INTERPOLATOR = new LinearOutSlowInInterpolator();
 
-    /** Whether the drawer shadow comes from setting elevation on the drawer. */
-    private static final boolean SET_DRAWER_SHADOW_FROM_ELEVATION =
-            Build.VERSION.SDK_INT >= 21;
-    private static final int DRAWER_ELEVATION = 10; //dp
-
     private static final int MIN_DRAWER_MARGIN = 56;
 
     private static final DrawerLayoutInsetsHelper INSETS_HELPER;
@@ -108,8 +103,6 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
             INSETS_HELPER = null;
         }
     }
-
-    private float mDrawerElevation;
 
     private int mMinDrawerMargin;
     private boolean mInLayout;
@@ -214,7 +207,6 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
         mAnimator.addListener(this);
         mAnimator.setInterpolator(DRAWER_INTERPOLATOR);
         mCancelAnimation = false;
-        mDrawerElevation = (int) (DRAWER_ELEVATION * context.getResources().getDisplayMetrics().density + 0.5f);
         mStatusBarPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
         mStatusBarPaint.setColor(Color.BLACK);
         mNavigationBarPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
@@ -534,11 +526,6 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
                         MeasureSpec.EXACTLY);
                 child.measure(contentWidthSpec, contentHeightSpec);
             } else if (child == mLeftDrawer || child == mRightDrawer) {
-                if (SET_DRAWER_SHADOW_FROM_ELEVATION) {
-                    if (ViewCompat.getElevation(child) != mDrawerElevation) {
-                        ViewCompat.setElevation(child, mDrawerElevation);
-                    }
-                }
                 final int drawerWidthSpec = getChildMeasureSpec(widthMeasureSpec,
                         lp.leftMargin + lp.rightMargin + mMinDrawerMargin,
                         Math.min(widthSize, lp.width));
@@ -1240,35 +1227,41 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
 
         @Override
         protected void onDraw(Canvas c) {
+            int width = getWidth();
+            int height = getHeight();
+
+            // Dim background size
+            int dbLeft = 0, dbTop, dbRight = 0, dbBottom;
+
             View drawer = null;
             if (mLeftDrawer != null && mLeftDrawer.getRight() > 0) {
                 drawer = mLeftDrawer;
-            } else if (mRightDrawer != null && mRightDrawer.getLeft() < DrawerLayout.this.getWidth()) {
+                dbLeft = drawer.getRight();
+                dbRight = width;
+            } else if (mRightDrawer != null && mRightDrawer.getLeft() < width) {
                 drawer = mRightDrawer;
+                dbLeft = 0;
+                dbRight = drawer.getLeft();
             }
             if (drawer == null) {
+                // No need to draw dim background or shadow
                 return;
             }
-
-            boolean clipped = false;
-            int saved = 0;
-            int top = drawer.getTop();
-            int bottom = drawer.getBottom();
-            if (top != 0 || bottom != getHeight()) {
-                clipped = true;
-                saved = c.save();
-                c.clipRect(0, top, getWidth(), bottom);
-            }
+            dbTop = drawer.getTop();
+            dbBottom = drawer.getBottom();
 
             // Draw dark background
+            int saved = c.save();
+            c.clipRect(dbLeft, dbTop, dbRight, dbBottom);
             c.drawARGB(lerp(FORM, TO, mPercent), 0, 0, 0);
+            c.restoreToCount(saved);
 
+            // Draw shadow
             if (drawer == mLeftDrawer) {
                 if (mShadowLeft != null) {
                     int right = mLeftDrawer.getRight();
                     final int shadowWidth = mShadowLeft.getIntrinsicWidth();
-                    mShadowLeft.setBounds(right, 0,
-                            right + shadowWidth, getHeight());
+                    mShadowLeft.setBounds(right, 0, right + shadowWidth, height);
                     mShadowLeft.setAlpha((int) (0xff * mLeftPercent));
                     mShadowLeft.draw(c);
                 }
@@ -1276,15 +1269,10 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
                 if (mShadowRight != null) {
                     int left = mRightDrawer.getLeft();
                     final int shadowWidth = mShadowRight.getIntrinsicWidth();
-                    mShadowRight.setBounds(left - shadowWidth, 0,
-                            left, getHeight());
+                    mShadowRight.setBounds(left - shadowWidth, 0, left, height);
                     mShadowRight.setAlpha((int) (0xff * mRightPercent));
                     mShadowRight.draw(c);
                 }
-            }
-
-            if (clipped) {
-                c.restoreToCount(saved);
             }
         }
     }
