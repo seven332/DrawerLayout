@@ -24,7 +24,8 @@ import com.hippo.drawerlayout.DrawerLayoutChild;
 
 public class DrawerViewContent extends LinearLayout implements DrawerLayoutChild {
 
-    private int mFitPaddingTop;
+    private int mWindowsPaddingTop;
+    private int mWindowsPaddingBottom;
 
     public DrawerViewContent(Context context) {
         super(context);
@@ -35,17 +36,18 @@ public class DrawerViewContent extends LinearLayout implements DrawerLayoutChild
     }
 
     @Override
-    public void setFitPadding(int top, int bottom) {
-        mFitPaddingTop = top;
+    public void onGetWindowPadding(int top, int bottom) {
+        mWindowsPaddingTop = top;
+        mWindowsPaddingBottom = bottom;
     }
 
     @Override
-    public int getLayoutPaddingTop() {
-        return mFitPaddingTop;
+    public int getAdditionalTopMargin() {
+        return mWindowsPaddingTop;
     }
 
     @Override
-    public int getLayoutPaddingBottom() {
-        return 0;
+    public int getAdditionalBottomMargin() {
+        return mWindowsPaddingBottom;
     }
 }

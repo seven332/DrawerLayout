@@ -35,7 +35,7 @@ public class DrawerViewLeft extends FrameLayout implements DrawerLayoutChild {
     private static final int SCRIM_COLOR = 0x44000000;
     private static final boolean DRAW_SCRIM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     private Paint mPaint;
-    private int mFitPaddingTop;
+    private int mWindowPaddingTop;
 
     public DrawerViewLeft(Context context) {
         super(context);
@@ -62,27 +62,27 @@ public class DrawerViewLeft extends FrameLayout implements DrawerLayoutChild {
     public void draw(@NonNull Canvas canvas) {
         super.draw(canvas);
 
-        if (DRAW_SCRIM && mFitPaddingTop > 0) {
+        if (DRAW_SCRIM && mWindowPaddingTop > 0) {
             if (null == mPaint) {
                 mPaint = new Paint();
                 mPaint.setColor(SCRIM_COLOR);
             }
-            canvas.drawRect(0, 0, getWidth(), mFitPaddingTop, mPaint);
+            canvas.drawRect(0, 0, getWidth(), mWindowPaddingTop, mPaint);
         }
     }
 
     @Override
-    public void setFitPadding(int top, int bottom) {
-        mFitPaddingTop = top;
+    public void onGetWindowPadding(int top, int bottom) {
+        mWindowPaddingTop = top;
     }
 
     @Override
-    public int getLayoutPaddingTop() {
+    public int getAdditionalTopMargin() {
         return 0;
     }
 
     @Override
-    public int getLayoutPaddingBottom() {
+    public int getAdditionalBottomMargin() {
         return 0;
     }
 }

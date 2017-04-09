@@ -147,8 +147,8 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
     private boolean mIntercepted;
     private boolean mCanIntercept;
 
-    private int mFitPaddingTop = 0;
-    private int mFitPaddingBottom = 0;
+    private int mWindowPaddingTop = 0;
+    private int mWindowPaddingBottom = 0;
 
     private Paint mStatusBarPaint;
     private Paint mNavigationBarPaint;
@@ -503,7 +503,7 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
 
         if (widthMode != MeasureSpec.EXACTLY || heightMode != MeasureSpec.EXACTLY)
             throw new IllegalArgumentException(
-                    "SlidingDrawerLayout must be measured with MeasureSpec.EXACTLY.");
+                    "DrawerLayout must be measured with MeasureSpec.EXACTLY.");
 
         setMeasuredDimension(widthSize, heightSize);
 
@@ -516,20 +516,22 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
                 continue;
             }
 
-            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            int paddingTop = 0;
-            int paddingBottom = mFitPaddingBottom;
+            // Get additional horizontal margin
+            int additionalHorizontalMargin = 0;
             if (child instanceof DrawerLayoutChild) {
                 DrawerLayoutChild dlc = (DrawerLayoutChild) child;
-                paddingTop = dlc.getLayoutPaddingTop();
-                paddingBottom = dlc.getLayoutPaddingBottom() + mFitPaddingBottom;
+                additionalHorizontalMargin =
+                    dlc.getAdditionalTopMargin() + dlc.getAdditionalBottomMargin();
             }
+
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
             if (child == mContentView) {
                 // Content views get measured at exactly the layout's size.
                 final int contentWidthSpec = MeasureSpec.makeMeasureSpec(
                         widthSize - lp.leftMargin - lp.rightMargin, MeasureSpec.EXACTLY);
                 final int contentHeightSpec = MeasureSpec.makeMeasureSpec(
-                        heightSize - lp.topMargin - lp.bottomMargin - paddingTop - paddingBottom, MeasureSpec.EXACTLY);
+                        heightSize - lp.topMargin - lp.bottomMargin - additionalHorizontalMargin,
+                        MeasureSpec.EXACTLY);
                 child.measure(contentWidthSpec, contentHeightSpec);
             } else if (child == mLeftDrawer || child == mRightDrawer) {
                 if (SET_DRAWER_SHADOW_FROM_ELEVATION) {
@@ -541,7 +543,7 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
                         lp.leftMargin + lp.rightMargin + mMinDrawerMargin,
                         Math.min(widthSize, lp.width));
                 final int drawerHeightSpec = getChildMeasureSpec(heightMeasureSpec,
-                        lp.topMargin + lp.bottomMargin + paddingTop + paddingBottom,
+                        lp.topMargin + lp.bottomMargin + additionalHorizontalMargin,
                         lp.height);
                 child.measure(drawerWidthSpec, drawerHeightSpec);
             } else if (child == mShadow) {
@@ -566,17 +568,17 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
             }
 
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            int paddingTop = 0;
-            int paddingBottom = mFitPaddingBottom;
+            int additionalTopMargin = 0;
+            int additionalBottomMargin = 0;
             if (child instanceof DrawerLayoutChild) {
                 DrawerLayoutChild dlc = (DrawerLayoutChild) child;
-                paddingTop = dlc.getLayoutPaddingTop();
-                paddingBottom = dlc.getLayoutPaddingBottom() + mFitPaddingBottom;
+                additionalTopMargin = dlc.getAdditionalTopMargin();
+                additionalBottomMargin = dlc.getAdditionalBottomMargin();
             }
             if (child == mContentView) {
-                child.layout(lp.leftMargin, lp.topMargin + paddingTop,
+                child.layout(lp.leftMargin, lp.topMargin + additionalTopMargin,
                         lp.leftMargin + child.getMeasuredWidth(),
-                        lp.topMargin + paddingTop + child.getMeasuredHeight());
+                        lp.topMargin + additionalTopMargin + child.getMeasuredHeight());
             } else if (child == mShadow) {
                 child.layout(0, 0, child.getMeasuredWidth(), child.getMeasuredHeight());
             } else { // Drawer, if it wasn't onMeasure would have thrown an exception.
@@ -598,29 +600,29 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
                 switch (vgrav) {
                     default:
                     case Gravity.TOP: {
-                        child.layout(childLeft, lp.topMargin + paddingTop, childLeft + childWidth,
-                                lp.topMargin + paddingTop + childHeight);
+                        child.layout(childLeft, lp.topMargin + additionalTopMargin, childLeft + childWidth,
+                                lp.topMargin + additionalTopMargin + childHeight);
                         break;
                     }
 
                     case Gravity.BOTTOM: {
                         final int height = b - t;
                         child.layout(childLeft,
-                                height - lp.bottomMargin - paddingBottom - child.getMeasuredHeight(),
+                                height - lp.bottomMargin - additionalBottomMargin - child.getMeasuredHeight(),
                                 childLeft + childWidth,
-                                height - lp.bottomMargin - paddingBottom);
+                                height - lp.bottomMargin - additionalBottomMargin);
                         break;
                     }
 
                     case Gravity.CENTER_VERTICAL: {
                         final int height = b - t;
-                        int childTop = (height - childHeight - paddingTop - paddingBottom - lp.topMargin - lp.bottomMargin) / 2 + paddingTop;
+                        int childTop = (height - childHeight - additionalTopMargin - additionalBottomMargin - lp.topMargin - lp.bottomMargin) / 2 + additionalTopMargin;
                         // Offset for margins. If things don't fit right because of
                         // bad measurement before, oh well.
-                        if (childTop < lp.topMargin + paddingTop) {
-                            childTop = lp.topMargin + paddingTop;
-                        } else if (childTop + childHeight > height - paddingBottom -lp.bottomMargin) {
-                            childTop = height - paddingBottom - lp.bottomMargin - childHeight;
+                        if (childTop < lp.topMargin + additionalTopMargin) {
+                            childTop = lp.topMargin + additionalTopMargin;
+                        } else if (childTop + childHeight > height - additionalBottomMargin -lp.bottomMargin) {
+                            childTop = height - additionalBottomMargin - lp.bottomMargin - childHeight;
                         }
                         child.layout(childLeft, childTop, childLeft + childWidth,
                                 childTop + childHeight);
@@ -776,29 +778,20 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
     }
 
     private boolean shouldCloseDrawers(float x, float y) {
-        View activitedDrawer = null;
+        View drawer = null;
         if (mLeftPercent > 0.0f) {
-            activitedDrawer = mLeftDrawer;
+            drawer = mLeftDrawer;
         } else if (mRightPercent > 0.0f) {
-            activitedDrawer = mRightDrawer;
+            drawer = mRightDrawer;
         }
-        if (activitedDrawer == null) {
+        if (drawer == null) {
             return false;
         }
 
         int xInt = (int) x;
         int yInt = (int) y;
 
-        if (activitedDrawer instanceof DrawerLayoutChild) {
-            DrawerLayoutChild dlc = (DrawerLayoutChild) activitedDrawer;
-            int paddingTop = dlc.getLayoutPaddingTop();
-            int paddingBottom = dlc.getLayoutPaddingBottom();
-            if (yInt < paddingTop || yInt >= getHeight() - paddingBottom) {
-                return false;
-            }
-        }
-
-        return !isViewUnder(activitedDrawer, xInt, yInt);
+        return !isViewUnder(drawer, xInt, yInt);
     }
 
     @Override
@@ -1002,8 +995,8 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
         mStatusBarPaint.setColor(statusBarColor);
 
         int width = getWidth();
-        if (mFitPaddingTop != 0 && width != 0) {
-            invalidate(0, 0, width, mFitPaddingTop);
+        if (mWindowPaddingTop != 0 && width != 0) {
+            invalidate(0, 0, width, mWindowPaddingTop);
         }
     }
 
@@ -1016,8 +1009,8 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
 
         int width = getWidth();
         int height = getHeight();
-        if (mFitPaddingBottom != 0 && width != 0) {
-            invalidate(0, height - mFitPaddingBottom, width, height);
+        if (mWindowPaddingBottom != 0 && width != 0) {
+            invalidate(0, height - mWindowPaddingBottom, width, height);
         }
     }
 
@@ -1051,28 +1044,28 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if (mFitPaddingTop != 0) {
-            canvas.drawRect(0, 0, getWidth(), mFitPaddingTop, mStatusBarPaint);
+        if (mWindowPaddingTop != 0) {
+            canvas.drawRect(0, 0, getWidth(), mWindowPaddingTop, mStatusBarPaint);
         }
 
-        if (mFitPaddingBottom != 0) {
+        if (mWindowPaddingBottom != 0) {
             int height = getHeight();
-            canvas.drawRect(0, height - mFitPaddingBottom, getWidth(), height, mNavigationBarPaint);
+            canvas.drawRect(0, height - mWindowPaddingBottom, getWidth(), height, mNavigationBarPaint);
         }
     }
 
     @SuppressWarnings("deprecation")
     @Override
     protected boolean fitSystemWindows(Rect insets) {
-        mFitPaddingTop = insets.top;
-        mFitPaddingBottom = insets.bottom;
+        mWindowPaddingTop = insets.top;
+        mWindowPaddingBottom = insets.bottom;
         insets.top = 0;
         insets.bottom = 0;
 
         for (int i = 0, n = getChildCount(); i < n; i++) {
             View view = getChildAt(i);
             if (view instanceof DrawerLayoutChild) {
-                ((DrawerLayoutChild) view).setFitPadding(mFitPaddingTop, mFitPaddingBottom);
+                ((DrawerLayoutChild) view).onGetWindowPadding(mWindowPaddingTop, mWindowPaddingBottom);
             }
         }
 
@@ -1247,37 +1240,30 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
 
         @Override
         protected void onDraw(Canvas c) {
-            View activatedDrawer = null;
+            View drawer = null;
             if (mLeftDrawer != null && mLeftDrawer.getRight() > 0) {
-                activatedDrawer = mLeftDrawer;
+                drawer = mLeftDrawer;
             } else if (mRightDrawer != null && mRightDrawer.getLeft() < DrawerLayout.this.getWidth()) {
-                activatedDrawer = mRightDrawer;
+                drawer = mRightDrawer;
             }
-            if (activatedDrawer == null) {
+            if (drawer == null) {
                 return;
             }
 
-            int paddingTop = 0;
-            int paddingBottom = 0;
-            if (activatedDrawer instanceof DrawerLayoutChild) {
-                DrawerLayoutChild dlc = (DrawerLayoutChild) activatedDrawer;
-                paddingTop = dlc.getLayoutPaddingTop();
-                paddingBottom = dlc.getLayoutPaddingBottom();
-            }
-
-            int width = getWidth();
-            int height = getHeight();
-
-            int saved = -1;
-            if (paddingTop != 0 || paddingBottom != 0) {
+            boolean clipped = false;
+            int saved = 0;
+            int top = drawer.getTop();
+            int bottom = drawer.getBottom();
+            if (top != 0 || bottom != getHeight()) {
+                clipped = true;
                 saved = c.save();
-                c.clipRect(0, paddingTop, width, height - paddingBottom);
+                c.clipRect(0, top, getWidth(), bottom);
             }
 
             // Draw dark background
             c.drawARGB(lerp(FORM, TO, mPercent), 0, 0, 0);
 
-            if (activatedDrawer == mLeftDrawer) {
+            if (drawer == mLeftDrawer) {
                 if (mShadowLeft != null) {
                     int right = mLeftDrawer.getRight();
                     final int shadowWidth = mShadowLeft.getIntrinsicWidth();
@@ -1286,7 +1272,7 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
                     mShadowLeft.setAlpha((int) (0xff * mLeftPercent));
                     mShadowLeft.draw(c);
                 }
-            } else if (activatedDrawer == mRightDrawer) {
+            } else if (drawer == mRightDrawer) {
                 if (mShadowRight != null) {
                     int left = mRightDrawer.getLeft();
                     final int shadowWidth = mShadowRight.getIntrinsicWidth();
@@ -1297,7 +1283,7 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
                 }
             }
 
-            if (saved != -1) {
+            if (clipped) {
                 c.restoreToCount(saved);
             }
         }

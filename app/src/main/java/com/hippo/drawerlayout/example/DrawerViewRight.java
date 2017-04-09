@@ -27,7 +27,8 @@ import com.hippo.drawerlayout.DrawerLayoutChild;
 
 public class DrawerViewRight extends FrameLayout implements DrawerLayoutChild {
 
-    private int mFitPaddingTop;
+    private int mWindowsPaddingTop;
+    private int mWindowsPaddingBottom;
     private int mActionBarSize;
 
     public DrawerViewRight(Context context) {
@@ -50,18 +51,19 @@ public class DrawerViewRight extends FrameLayout implements DrawerLayoutChild {
     }
 
     @Override
-    public void setFitPadding(int top, int bottom) {
-        mFitPaddingTop = top;
+    public void onGetWindowPadding(int top, int bottom) {
+        mWindowsPaddingTop = top;
+        mWindowsPaddingBottom = bottom;
     }
 
     @Override
-    public int getLayoutPaddingTop() {
-        return mFitPaddingTop + mActionBarSize;
+    public int getAdditionalTopMargin() {
+        return mWindowsPaddingTop + mActionBarSize;
     }
 
     @Override
-    public int getLayoutPaddingBottom() {
-        return 0;
+    public int getAdditionalBottomMargin() {
+        return mWindowsPaddingBottom;
     }
 
     private static int getAttrDimensionPixelOffset(Context context, @AttrRes int attrId) {
