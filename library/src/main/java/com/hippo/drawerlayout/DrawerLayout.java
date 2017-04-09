@@ -143,7 +143,9 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
     private int mWindowPaddingTop = 0;
     private int mWindowPaddingBottom = 0;
 
+    private int mStatusBarColor = Color.BLACK;
     private Paint mStatusBarPaint;
+    private int mNavigationBarColor = Color.BLACK;
     private Paint mNavigationBarPaint;
 
     /**
@@ -208,9 +210,9 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
         mAnimator.setInterpolator(DRAWER_INTERPOLATOR);
         mCancelAnimation = false;
         mStatusBarPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
-        mStatusBarPaint.setColor(Color.BLACK);
+        mStatusBarPaint.setColor(mStatusBarColor);
         mNavigationBarPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
-        mNavigationBarPaint.setColor(Color.BLACK);
+        mNavigationBarPaint.setColor(mNavigationBarColor);
 
         setWillNotDraw(false);
 
@@ -979,30 +981,36 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
     }
 
     public void setStatusBarColor(int statusBarColor) {
-        mStatusBarPaint.setColor(statusBarColor);
+        if (mStatusBarColor != statusBarColor) {
+            mStatusBarColor = statusBarColor;
+            mStatusBarPaint.setColor(statusBarColor);
 
-        int width = getWidth();
-        if (mWindowPaddingTop != 0 && width != 0) {
-            invalidate(0, 0, width, mWindowPaddingTop);
+            int width = getWidth();
+            if (mWindowPaddingTop != 0 && width != 0) {
+                invalidate(0, 0, width, mWindowPaddingTop);
+            }
         }
     }
 
     public int getStatusBarColor() {
-        return mStatusBarPaint.getColor();
+        return mStatusBarColor;
     }
 
     public void setNavigationBarColor(int navigationBarColor) {
-        mNavigationBarPaint.setColor(navigationBarColor);
+        if (mNavigationBarColor != navigationBarColor) {
+            mNavigationBarColor = navigationBarColor;
+            mNavigationBarPaint.setColor(navigationBarColor);
 
-        int width = getWidth();
-        int height = getHeight();
-        if (mWindowPaddingBottom != 0 && width != 0) {
-            invalidate(0, height - mWindowPaddingBottom, width, height);
+            int width = getWidth();
+            int height = getHeight();
+            if (mWindowPaddingBottom != 0 && width != 0) {
+                invalidate(0, height - mWindowPaddingBottom, width, height);
+            }
         }
     }
 
     public int getNavigationBarColor() {
-        return mNavigationBarPaint.getColor();
+        return mNavigationBarColor;
     }
 
     @Override
@@ -1031,11 +1039,11 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if (mWindowPaddingTop != 0) {
+        if (mWindowPaddingTop != 0 && mStatusBarColor != Color.TRANSPARENT) {
             canvas.drawRect(0, 0, getWidth(), mWindowPaddingTop, mStatusBarPaint);
         }
 
-        if (mWindowPaddingBottom != 0) {
+        if (mWindowPaddingBottom != 0 && mNavigationBarColor != Color.TRANSPARENT) {
             int height = getHeight();
             canvas.drawRect(0, height - mWindowPaddingBottom, getWidth(), height, mNavigationBarPaint);
         }
