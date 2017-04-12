@@ -94,16 +94,6 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
 
     private static final int MIN_DRAWER_MARGIN = 56;
 
-    private static final DrawerLayoutInsetsHelper INSETS_HELPER;
-
-    static {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            INSETS_HELPER = new DrawerLayoutInsetsHelperL();
-        } else {
-            INSETS_HELPER = null;
-        }
-    }
-
     private int mMinDrawerMargin;
     private boolean mInLayout;
 
@@ -216,8 +206,12 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
 
         setWillNotDraw(false);
 
-        if (INSETS_HELPER != null) {
-            INSETS_HELPER.setupForWindowInsets(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (ViewCompat.getFitsSystemWindows(this)) {
+                // Now set the sys ui flags to enable us to lay out in the window insets
+                setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+            }
         }
     }
 
