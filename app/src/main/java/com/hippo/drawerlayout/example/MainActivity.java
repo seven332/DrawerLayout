@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 
+import android.support.v7.widget.Toolbar;
 import com.hippo.drawerlayout.DrawerLayout;
 
 public class MainActivity extends Activity {
@@ -31,5 +32,8 @@ public class MainActivity extends Activity {
 
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerLayout.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.inflateMenu(R.menu.menu);
     }
 }

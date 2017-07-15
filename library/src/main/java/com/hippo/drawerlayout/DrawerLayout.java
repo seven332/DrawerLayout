@@ -774,7 +774,8 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
         int xInt = (int) x;
         int yInt = (int) y;
 
-        return !isViewUnder(drawer, xInt, yInt);
+        return !isViewUnder(drawer, xInt, yInt) &&
+            yInt >= drawer.getTop() && yInt < drawer.getBottom();
     }
 
     @Override
