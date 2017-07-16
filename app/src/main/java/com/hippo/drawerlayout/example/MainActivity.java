@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import com.hippo.drawerlayout.DrawerLayout;
 
 public class MainActivity extends Activity {
@@ -32,6 +33,8 @@ public class MainActivity extends Activity {
 
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerLayout.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
+        drawerLayout.setDrawerShadow(R.drawable.drawer_left_shadow, Gravity.LEFT);
+        drawerLayout.setDrawerShadow(R.drawable.drawer_right_shadow, Gravity.RIGHT);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.inflateMenu(R.menu.menu);

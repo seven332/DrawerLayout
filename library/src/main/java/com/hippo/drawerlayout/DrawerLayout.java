@@ -1264,7 +1264,7 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
                 if (mShadowLeft != null) {
                     int right = mLeftDrawer.getRight();
                     final int shadowWidth = mShadowLeft.getIntrinsicWidth();
-                    mShadowLeft.setBounds(right, 0, right + shadowWidth, height);
+                    mShadowLeft.setBounds(right, dbTop, right + shadowWidth, dbBottom);
                     mShadowLeft.setAlpha((int) (0xff * mLeftPercent));
                     mShadowLeft.draw(c);
                 }
@@ -1272,7 +1272,7 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
                 if (mShadowRight != null) {
                     int left = mRightDrawer.getLeft();
                     final int shadowWidth = mShadowRight.getIntrinsicWidth();
-                    mShadowRight.setBounds(left - shadowWidth, 0, left, height);
+                    mShadowRight.setBounds(left - shadowWidth, dbTop, left, dbBottom);
                     mShadowRight.setAlpha((int) (0xff * mRightPercent));
                     mShadowRight.draw(c);
                 }
