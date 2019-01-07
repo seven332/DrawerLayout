@@ -19,24 +19,58 @@ package com.hippo.drawerlayout.example;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewParent;
+import android.widget.HorizontalScrollView;
 import com.hippo.drawerlayout.DrawerLayout;
 
 public class MainActivity extends Activity {
+
+    private static void transformPointToViewLocal(int[] point, View parent, View child) {
+        ViewParent viewParent = child.getParent();
+
+        while (viewParent instanceof View) {
+            View view = (View) viewParent;
+            point[0] += view.getScrollX() - child.getLeft();
+            point[1] += view.getScrollY() - child.getTop();
+
+            if (view == parent) {
+                break;
+            }
+
+            child = view;
+            viewParent = child.getParent();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        final DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerLayout.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
         drawerLayout.setDrawerShadow(R.drawable.drawer_left_shadow, Gravity.LEFT);
         drawerLayout.setDrawerShadow(R.drawable.drawer_right_shadow, Gravity.RIGHT);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.inflateMenu(R.menu.menu);
+
+        final HorizontalScrollView horizontalScrollView = findViewById(R.id.horizontal_scroll_view);
+
+        drawerLayout.setGestureBlocker(new DrawerLayout.GestureBlocker() {
+            @Override
+            public boolean shouldBlockGesture(MotionEvent ev) {
+                int[] point = new int[] {(int) ev.getX(), (int) ev.getY()};
+                transformPointToViewLocal(point, drawerLayout, horizontalScrollView);
+
+                return !drawerLayout.isDrawersVisible()
+                    && point[0] > 0 && point[0] < horizontalScrollView.getWidth()
+                    && point[1] > 0 && point[1] < horizontalScrollView.getHeight();
+            }
+        });
     }
 }

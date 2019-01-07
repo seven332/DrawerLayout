@@ -24,7 +24,8 @@
 
     <com.hippo.drawerlayout.example.DrawerViewContent
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -32,6 +33,27 @@
             android:layout_width="match_parent"
             android:background="?attr/colorPrimary"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <HorizontalScrollView
+                android:id="@+id/horizontal_scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="12345678901234567890"
+                    android:textSize="64sp"/>
+
+            </HorizontalScrollView>
+
+        </FrameLayout>
 
     </com.hippo.drawerlayout.example.DrawerViewContent>
 
