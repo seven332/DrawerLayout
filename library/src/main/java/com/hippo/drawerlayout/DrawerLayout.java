@@ -138,6 +138,8 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
     private int mNavigationBarColor = Color.BLACK;
     private Paint mNavigationBarPaint;
 
+    private GestureBlocker mGestureBlocker;
+
     /**
      * Listener for monitoring events about drawers.
      */
@@ -217,6 +219,10 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
 
     public void setDrawerListener(DrawerListener listener) {
         mListener = listener;
+    }
+
+    public void setGestureBlocker(GestureBlocker blocker) {
+        mGestureBlocker = blocker;
     }
 
     /**
@@ -778,6 +784,13 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
             yInt >= drawer.getTop() && yInt < drawer.getBottom();
     }
 
+    /**
+     * Returns {@code true} if any drawer is visible.
+     */
+    public boolean isDrawersVisible() {
+        return mLeftPercent > 0 || mRightPercent > 0;
+    }
+
     @Override
     public boolean onInterceptTouchEvent(@NonNull MotionEvent ev) {
         final int action = MotionEventCompat.getActionMasked(ev);
@@ -785,6 +798,10 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
         final float y = ev.getY();
 
         if (!isDrawersTouchable()) {
+            return false;
+        }
+
+        if (!shouldCloseDrawers(x, y) && mGestureBlocker != null && mGestureBlocker.shouldBlockGesture(ev)) {
             return false;
         }
 
@@ -853,7 +870,11 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
         final float y = ev.getY();
 
         if (action == MotionEvent.ACTION_DOWN) {
-            mIntercepted = true;
+            if (!shouldCloseDrawers(x, y) && mGestureBlocker != null && mGestureBlocker.shouldBlockGesture(ev)) {
+                return false;
+            } else {
+                mIntercepted = true;
+            }
         }
 
         if (!mIntercepted) {
@@ -1305,5 +1326,14 @@ public class DrawerLayout extends ViewGroup implements ValueAnimator.AnimatorUpd
                     y >= view.getTop() + translationY &&
                     y < view.getBottom() + translationY;
         }
+    }
+
+    public interface GestureBlocker {
+
+        /**
+         * Returns {@code true} if the gesture should be blocked.
+         * It is only checked on the start of the gesture.
+         */
+        boolean shouldBlockGesture(MotionEvent ev);
     }
 }
